@@ -1,0 +1,59 @@
+```
+install docker (copy/paste to your VM):
+
+  sudo su -
+  bash <( curl -sL https://get.docker.com)
+```
+create and add to group set up the password
+
+  useradd jenkins -m -G sudo,docker
+  passwd jenkins <<EOF
+  jenkins
+  jenkins
+  EOF
+```
+Launching Jenkins
+
+  sudo su -
+  docker run --name jenkins --rm -u root -d -p 8080:8080 -p 50000:50000 -v /var/run/docker.sock:/var/run/docker.sock -v /home/jenkins:/var/jenkins_home jenkins/jenkins:lts
+```
+find your instance default IP Address
+
+  hostip=hostname -I | awk '/ / {print $1}'
+  echo "https://${hostip}:8080"
+```
+#!/bin/bash
+
+useradd jenkins -m
+docker run \
+  -u jenkins \
+  --rm \
+  -d \
+  -p 8080:8080 \
+  -p 50000:50000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /home/jenkins:/var/jenkins_home \
+  jenkins/jenkins:lts
+cat /home/jenkins/secrets/initialAdminPassword
+```
+configure SSH keys in a Vagrant multi-machine setup
+
+config.vm.provision "file", source: "id_rsa", destination: "/home/vagrant/.ssh/id_rsa"
+ public_key = File.read("id_rsa.pub")
+ config.vm.provision :shell, :inline =>"
+     echo 'Copying ansible-vm public SSH Keys to the VM'
+     mkdir -p /home/vagrant/.ssh
+     chmod 700 /home/vagrant/.ssh
+     echo '#{public_key}' >> /home/vagrant/.ssh/authorized_keys
+     chmod -R 600 /home/vagrant/.ssh/authorized_keys
+     echo 'Host 192.168.*.*' >> /home/vagrant/.ssh/config
+     echo 'StrictHostKeyChecking no' >> /home/vagrant/.ssh/config
+     echo 'UserKnownHostsFile /dev/null' >> /home/vagrant/.ssh/config
+     chmod -R 600 /home/vagrant/.ssh/config
+     ", privileged: false
+```
+config.vm.provision "shell", inline: <<-SHELL
+  cat /home/vagrant/.ssh/me.pub >> /home/vagrant/.ssh/authorized_keys
+SHELL
+end
+```
